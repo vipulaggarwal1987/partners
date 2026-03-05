@@ -367,21 +367,6 @@
             font-size: 12px;
         }
 
-        .joint-accounts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .joint-tag {
-            display: inline-block;
-            background-color: var(--blue-info);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-        }
 
         .urgent-actions {
             display: flex;
@@ -829,7 +814,7 @@
                         <th>Primary Contact</th>
                         <th>Last Touchpoint</th>
                         <th>Next Call</th>
-                        <th>Joint Accounts</th>
+
                         <th>Urgent Actions</th>
                         <th>Actions</th>
                     </tr>
@@ -1194,7 +1179,7 @@
             tbody.innerHTML = '';
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No partners match the current filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No partners match the current filter.</td></tr>';
                 return;
             }
 
@@ -1221,13 +1206,6 @@
                                 ? `<span class="call-badge today">Today @ ${partner.nextCall.time}</span>`
                                 : `<span class="call-badge">${partner.nextCall.date} @ ${partner.nextCall.time}</span>`)
                         }
-                    </td>
-                    <td>
-                        <div class="joint-accounts">
-                            ${partner.jointAccounts.length > 0 
-                                ? partner.jointAccounts.map(account => `<span class="joint-tag">${account}</span>`).join('') 
-                                : '<span class="joint-tag" style="opacity: 0.5;">None</span>'}
-                        </div>
                     </td>
                     <td>
                         <div class="urgent-actions">
@@ -1386,12 +1364,6 @@
                     <div class="modal-item-header">Next Call</div>
                     <div class="modal-item-description">${partner.nextCall.date} at ${partner.nextCall.time || ''}</div>
                 </div>
-                ${partner.jointAccounts.length > 0 ? `
-                <div class="modal-item">
-                    <div class="modal-item-header">Joint Accounts</div>
-                    <div class="modal-item-description">${partner.jointAccounts.join(', ')}</div>
-                </div>
-                ` : ''}
                 ${partner.urgentActions.length > 0 ? `
                 <div class="modal-item">
                     <div class="modal-item-header">Urgent Actions</div>
