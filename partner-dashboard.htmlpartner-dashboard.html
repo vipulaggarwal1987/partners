@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Engagement Dashboard - Fynd UK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-navy: #1A1A2E;
+            --accent-teal: #0D9488;
+            --accent-teal-light: #D1FAE5;
+            --bg-light: #F1F5F9;
+            --white: #FFFFFF;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+            --border-light: #E5E7EB;
+            --red-urgent: #EF4444;
+            --amber-warning: #F59E0B;
+            --orange-info: #F97316;
+            --blue-info: #3B82F6;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Calibri', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: var(--primary-navy);
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .report-generated {
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: right;
+            line-height: 1.5;
+        }
+
+        .report-generated strong {
+            color: var(--primary-navy);
+            font-weight: 600;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kpi-card.active {
+            border-bottom: 3px solid var(--accent-teal);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 4px;
+        }
+
+        .kpi-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .kpi-card.alert .kpi-value {
+            color: var(--red-urgent);
+        }
+
+        .kpi-card.warning .kpi-value {
+            color: var(--amber-warning);
+        }
+
+        .kpi-card.info .kpi-value {
+            color: var(--blue-info);
+        }
+
+        /* Partner Table Section */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background-color: var(--accent-teal);
+            border-radius: 2px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .filter-indicator {
+            padding: 12px 24px;
+            background-color: var(--accent-teal-light);
+            border-bottom: 1px solid var(--accent-teal);
+            font-size: 14px;
+            color: var(--text-dark);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-indicator.active {
+            display: flex;
+        }
+
+        .filter-indicator-text {
+            font-weight: 600;
+        }
+
+        .clear-filter-link {
+            color: var(--accent-teal);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .clear-filter-link:hover {
+            color: var(--primary-navy);
+        }
+
+        .table-controls {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .sort-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-btn:hover,
+        .sort-btn.active {
+            background-color: var(--accent-teal-light);
+            border-color: var(--accent-teal);
+            color: var(--accent-teal);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--bg-light);
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: rgba(241, 245, 249, 0.4);
+        }
+
+        tbody tr:hover {
+            background-color: var(--accent-teal-light);
+        }
+
+        .partner-name {
+            font-weight: 600;
+            color: var(--primary-navy);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .partner-name:hover {
+            color: var(--accent-teal);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .contact-name {
+            font-weight: 500;
+            color: var(--primary-navy);
+        }
+
+        .contact-role {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .last-touchpoint {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .touchpoint-date {
+            font-weight: 500;
+            color: var(--primary-navy);
+        }
+
+        .touchpoint-type {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .upcoming-call {
+            text-align: center;
+        }
+
+        .call-badge {
+            display: inline-block;
+            background-color: var(--amber-warning);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .call-badge.today {
+            background-color: var(--red-urgent);
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .no-call {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .joint-accounts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .joint-tag {
+            display: inline-block;
+            background-color: var(--blue-info);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .urgent-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            width: fit-content;
+            text-align: center;
+        }
+
+        .badge.red {
+            background-color: var(--red-urgent);
+            color: white;
+        }
+
+        .badge.amber {
+            background-color: var(--amber-warning);
+            color: white;
+        }
+
+        .badge.orange {
+            background-color: var(--orange-info);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            background-color: var(--accent-teal);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-small:hover {
+            background-color: var(--primary-navy);
+            transform: translateY(-1px);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 12px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            color: var(--primary-navy);
+            margin-bottom: 8px;
+        }
+
+        .modal-header p {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-item {
+            padding: 12px;
+            background-color: var(--bg-light);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .modal-item-header {
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 4px;
+        }
+
+        .modal-item-description {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .engagement-timeline {
+            margin-top: 24px;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .timeline-marker {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--accent-teal);
+            margin-right: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            color: var(--primary-navy);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .timeline-description {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .action-form {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .action-form label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary-navy);
+            font-size: 13px;
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+
+        .action-form label:first-child {
+            margin-top: 0;
+        }
+
+        .action-form input,
+        .action-form textarea,
+        .action-form select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .action-form input:focus,
+        .action-form textarea:focus,
+        .action-form select:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .action-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .action-form button {
+            margin-top: 16px;
+            padding: 10px 24px;
+            background-color: var(--accent-teal);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-form button:hover {
+            background-color: var(--primary-navy);
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group.full {
+            grid-template-columns: 1fr;
+        }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .container {
+            padding: 12px;
+        }
+        
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .report-generated {
+            text-align: left;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+        }
+        
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .kpi-card {
+            padding: 14px;
+        }
+        
+        .kpi-value {
+            font-size: 26px;
+        }
+        
+        .kpi-label {
+            font-size: 10px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            min-width: 900px;
+        }
+        
+        .table-controls {
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 16px;
+        }
+        
+        .search-box {
+            min-width: 100%;
+        }
+        
+        .sort-controls {
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .sort-btn {
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            padding: 6px 8px;
+        }
+        
+        .modal-content {
+            margin: 16px;
+            padding: 20px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+        }
+        
+        .form-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-indicator {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+        }
+        
+        .kpi-card {
+            padding: 12px;
+        }
+        
+        .kpi-value {
+            font-size: 24px;
+        }
+        
+        .sort-controls {
+            gap: 4px;
+        }
+        
+        .sort-btn {
+            font-size: 11px;
+            padding: 5px 6px;
+        }
+    }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1>Partner Engagement Dashboard</h1>
+                    <p class="header-subtitle">Fynd UK</p>
+                </div>
+                <div class="report-generated">
+                    Report generated on <strong>Thursday, 5 March 2026</strong> at <strong>07:48 AM UTC</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card" data-filter="all" onclick="filterByKPI('all', this)">
+                <div class="kpi-label">Total Active Partners</div>
+                <div class="kpi-value">13</div>
+                <div class="kpi-meta">All partners in network</div>
+            </div>
+            <div class="kpi-card info" data-filter="spoken" onclick="filterByKPI('spoken', this)">
+                <div class="kpi-label">Partners Spoken This Week</div>
+                <div class="kpi-value">6</div>
+                <div class="kpi-meta">Out of 13 total</div>
+            </div>
+            <div class="kpi-card alert" data-filter="not-contacted" onclick="filterByKPI('not-contacted', this)">
+                <div class="kpi-label">Partners Not Contacted This Week</div>
+                <div class="kpi-value">7</div>
+                <div class="kpi-meta">Requires attention</div>
+            </div>
+            <div class="kpi-card warning" data-filter="upcoming-calls" onclick="filterByKPI('upcoming-calls', this)">
+                <div class="kpi-label">Upcoming Calls in Next 14 Days</div>
+                <div class="kpi-value">5</div>
+                <div class="kpi-meta">Mar 5 – Mar 19, 2026</div>
+            </div>
+            <div class="kpi-card alert" data-filter="urgent" onclick="filterByKPI('urgent', this)">
+                <div class="kpi-label">Urgent Action Items</div>
+                <div class="kpi-value">5</div>
+                <div class="kpi-meta">Immediate attention needed</div>
+            </div>
+        </div>
+
+        <!-- Partner Table Section -->
+        <h2 class="section-title">Partner Overview</h2>
+        <div class="table-container">
+            <div class="filter-indicator" id="filterIndicator">
+                <span class="filter-indicator-text" id="filterIndicatorText"></span>
+                <span class="clear-filter-link" onclick="clearFilter()">Clear filter</span>
+            </div>
+            <div class="table-controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search partners, contacts, or actions..." onkeyup="filterTable()">
+                </div>
+                <div class="sort-controls">
+                    <button class="sort-btn active" onclick="sortAndFilter('all')">All Partners</button>
+                    <button class="sort-btn" onclick="sortAndFilter('next-call')">Next Call</button>
+                    <button class="sort-btn" onclick="sortAndFilter('urgent-actions')">Urgent Actions</button>
+                    <button class="sort-btn" onclick="sortAndFilter('last-touch')">Last Touch</button>
+                </div>
+            </div>
+            <table id="partnersTable">
+                <thead>
+                    <tr>
+                        <th>Partner Name</th>
+                        <th>Primary Contact</th>
+                        <th>Last Touchpoint</th>
+                        <th>Next Call</th>
+                        <th>Joint Accounts</th>
+                        <th>Urgent Actions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Partner Details Modal -->
+    <div id="partnerModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('partnerModal')">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalPartnerName"></h2>
+                <p id="modalPartnerMeta"></p>
+            </div>
+
+            <div class="modal-section">
+                <h3>Contact Information</h3>
+                <div id="modalContactInfo"></div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Account Details</h3>
+                <div id="modalAccountDetails"></div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Engagement Status</h3>
+                <div id="modalEngagementStatus"></div>
+            </div>
+
+            <div class="modal-section engagement-timeline">
+                <h3>Engagement Timeline</h3>
+                <div id="modalTimeline"></div>
+            </div>
+
+            <div class="action-form">
+                <h3 style="margin-bottom: 12px;">Log Engagement</h3>
+                <label>Engagement Type</label>
+                <select id="engagementType">
+                    <option>Call</option>
+                    <option>Email</option>
+                    <option>Meeting</option>
+                    <option>Demo</option>
+                    <option>Other</option>
+                </select>
+
+                <label>Date</label>
+                <input type="date" id="engagementDate">
+
+                <label>Notes</label>
+                <textarea id="engagementNotes" placeholder="Enter engagement details..."></textarea>
+
+                <label>Next Step</label>
+                <input type="text" id="engagementNextStep" placeholder="E.g., Schedule follow-up call">
+
+                <button onclick="saveEngagement(document.getElementById('engagementDate'))">Save Engagement</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Partner Data
+        const partnersData = [
+            {
+                id: "307737155264",
+                name: "Madris Consulting",
+                industry: "Management Consulting",
+                website: "www.madrisconsulting.com",
+                employees: "150+",
+                revenue: "£15M",
+                lastTouchpoint: { date: "Mar 4, 2026", type: "Call" },
+                nextCall: { date: "Mar 12, 2026", time: "2:00 PM" },
+                primaryContact: { name: "Matt", role: "", email: "mattp@madrisconsult.com", phone: "" },
+                jointAccounts: ["TikTok"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Mar 4, 2026", description: "Call with Sarah Johnson - Discussed Q2 planning and partnership expansion" },
+                    { date: "Feb 28, 2026", description: "Email follow-up on Q1 review" },
+                    { date: "Feb 20, 2026", description: "In-person meeting - Quarterly business review" }
+                ]
+            },
+            {
+                id: "225565439727",
+                name: "Dynamic Yield by Mastercard",
+                industry: "Fintech",
+                website: "www.dynamicyield.com",
+                employees: "200+",
+                revenue: "£45M",
+                lastTouchpoint: { date: "Mar 3, 2026", type: "Email" },
+                nextCall: { date: "Mar 18, 2026", time: "3:30 PM" },
+                primaryContact: { name: "James Frazer", role: "", email: "james.fraser@mastercard.com", phone: "" },
+                jointAccounts: ["Dentsu", "Prospero"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Mar 3, 2026", description: "Email regarding partnership proposal" },
+                    { date: "Feb 25, 2026", description: "Call - Initial introduction and needs assessment" },
+                    { date: "Feb 18, 2026", description: "Introduced via Dentsu partnership team" }
+                ]
+            },
+            {
+                id: "298696468179",
+                name: "nShift",
+                industry: "Logistics Software",
+                website: "www.nshift.com",
+                employees: "300+",
+                revenue: "£52M",
+                lastTouchpoint: { date: "Mar 2, 2026", type: "Meeting" },
+                nextCall: { date: "Mar 11, 2026", time: "10:00 AM" },
+                primaryContact: { name: "Mark Baptiste", role: "Global Strategic Partnerships Director", email: "mark.baptiste@nshift.com", phone: "" },
+                jointAccounts: ["TikTok", "Validify Limited"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Mar 2, 2026", description: "Team meeting to discuss supply chain integration" },
+                    { date: "Feb 26, 2026", description: "Email: Proposal for Q2 campaign" },
+                    { date: "Feb 19, 2026", description: "Call with product team" }
+                ]
+            },
+            {
+                id: "150471435973",
+                name: "Validify Limited",
+                industry: "Data Analytics",
+                website: "www.validifylimited.com",
+                employees: "80+",
+                revenue: "£8M",
+                lastTouchpoint: { date: "Mar 1, 2026", type: "Call" },
+                nextCall: { date: "Mar 15, 2026", time: "11:30 AM" },
+                primaryContact: { name: "Fergal O'Mullane", role: "Cofounder and CEO", email: "fergal@validify.co.uk", phone: "+44 (0)7521 165435" },
+                jointAccounts: ["nShift"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Mar 1, 2026", description: "Call regarding analytics dashboard integration" },
+                    { date: "Feb 22, 2026", description: "Email follow-up on technical requirements" },
+                    { date: "Feb 14, 2026", description: "Initial exploratory meeting" }
+                ]
+            },
+            {
+                id: "300402876140",
+                name: "Timberyard Commerce",
+                industry: "E-commerce Solutions",
+                website: "www.timberyardcommerce.com",
+                employees: "120+",
+                revenue: "£18M",
+                lastTouchpoint: { date: "Feb 28, 2026", type: "Email" },
+                nextCall: { date: "Mar 5, 2026", time: "9:30 AM" },
+                primaryContact: { name: "Paul Green", role: "Sales and Go-to-Market Leader", email: "paul.green@timberyardcommerce.com", phone: "" },
+                jointAccounts: ["Dynamic Yield by Mastercard"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Feb 28, 2026", description: "Email: Confirmed meeting for today at 9:30 AM" },
+                    { date: "Feb 25, 2026", description: "Call - Discussed partnership opportunities" },
+                    { date: "Feb 18, 2026", description: "Initial introduction meeting" }
+                ]
+            },
+            {
+                id: "300467318471",
+                name: "Digitally Driven Consultancy",
+                industry: "Digital Marketing",
+                website: "www.ddconsultancy.com",
+                employees: "90+",
+                revenue: "£12M",
+                lastTouchpoint: { date: "Feb 27, 2026", type: "Call" },
+                nextCall: { date: "Mar 20, 2026", time: "2:00 PM" },
+                primaryContact: { name: "Andy Davies", role: "Business Owner", email: "andy@digitallydrivenconsultancy.com", phone: "" },
+                jointAccounts: [],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Feb 27, 2026", description: "Strategic planning call for H2 2026" },
+                    { date: "Feb 20, 2026", description: "Email: Sent campaign proposal" },
+                    { date: "Feb 13, 2026", description: "Meeting to discuss Q1 performance" }
+                ]
+            },
+            {
+                id: "265571094211",
+                name: "TikTok",
+                industry: "Social Media",
+                website: "www.tiktok.com",
+                employees: "5000+",
+                revenue: "£2B+",
+                lastTouchpoint: { date: "Feb 15, 2026", type: "Email" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "Eve Wilson", role: "", email: "eve.wilson@tiktok.com", phone: "+447742691382" },
+                jointAccounts: ["Madris Consulting", "nShift"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Feb 15, 2026", description: "Email: Status check on ongoing collaboration" },
+                    { date: "Jan 30, 2026", description: "Call - Quarterly sync" },
+                    { date: "Jan 15, 2026", description: "Email: Proposal for new features" }
+                ]
+            },
+            {
+                id: "228984998604",
+                name: "Dentsu",
+                industry: "Advertising & Marketing",
+                website: "www.dentsu.com",
+                employees: "3000+",
+                revenue: "£500M+",
+                lastTouchpoint: { date: "Feb 10, 2026", type: "Meeting" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "Ash White", role: "Managing Partner", email: "ash.white@dentsu.com", phone: "" },
+                jointAccounts: ["Dynamic Yield by Mastercard"],
+                urgentActions: [],
+                engagementTimeline: [
+                    { date: "Feb 10, 2026", description: "Strategic partnership meeting" },
+                    { date: "Jan 28, 2026", description: "Email follow-up on proposal" },
+                    { date: "Jan 20, 2026", description: "Initial partnership discussion" }
+                ]
+            },
+            {
+                id: "208428377791",
+                name: "Vajra Global",
+                industry: "Enterprise Software",
+                website: "www.vajraglobal.com",
+                employees: "250+",
+                revenue: "£35M",
+                lastTouchpoint: { date: "Jan 20, 2026", type: "Email" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "Ganapathy Sankarabaaham", role: "Founder & CEO", email: "ganapathy@vajraglobal.com", phone: "+914443539395" },
+                jointAccounts: [],
+                urgentActions: ["Contract renewal needed", "Technical integration review", "Stakeholder alignment meeting"],
+                engagementTimeline: [
+                    { date: "Jan 20, 2026", description: "Email: Discussion on contract terms" },
+                    { date: "Dec 28, 2025", description: "Call - Holiday check-in" },
+                    { date: "Dec 10, 2025", description: "Year-end planning meeting" }
+                ]
+            },
+            {
+                id: "187355335408",
+                name: "Rixxo",
+                industry: "Risk Management",
+                website: "www.rixxo.com",
+                employees: "160+",
+                revenue: "£22M",
+                lastTouchpoint: { date: "Jan 15, 2026", type: "Call" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "Henry Carroll", role: "", email: "henry.carroll@rixxo.com", phone: "" },
+                jointAccounts: [],
+                urgentActions: ["Compliance audit required", "Budget approval needed", "API documentation review"],
+                engagementTimeline: [
+                    { date: "Jan 15, 2026", description: "Call regarding Q1 objectives" },
+                    { date: "Jan 5, 2026", description: "Email: Initial contact after holiday" },
+                    { date: "Dec 20, 2025", description: "Meeting on Q4 performance" }
+                ]
+            },
+            {
+                id: "160240379634",
+                name: "Prospero",
+                industry: "Business Intelligence",
+                website: "www.prospero.ai",
+                employees: "110+",
+                revenue: "£14M",
+                lastTouchpoint: { date: "Jan 10, 2026", type: "Email" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "David Worby", role: "", email: "david@prosperocommerce.com", phone: "07771742613" },
+                jointAccounts: ["Dynamic Yield by Mastercard"],
+                urgentActions: ["Security certification needed", "Executive sponsor alignment", "Migration timeline planning"],
+                engagementTimeline: [
+                    { date: "Jan 10, 2026", description: "Email: Quarterly business review sent" },
+                    { date: "Dec 15, 2025", description: "Call - End of year sync" },
+                    { date: "Nov 28, 2025", description: "In-person meeting at conference" }
+                ]
+            },
+            {
+                id: "155732707044",
+                name: "HiveB2X",
+                industry: "B2B Platform",
+                website: "www.hiveb2x.com",
+                employees: "95+",
+                revenue: "£10M",
+                lastTouchpoint: { date: "Jan 5, 2026", type: "Call" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "Vitaly Krasny", role: "", email: "vitalyk@hiveb2x.com", phone: "" },
+                jointAccounts: [],
+                urgentActions: ["SLA revision needed", "Performance metrics definition", "Escalation protocol setup"],
+                engagementTimeline: [
+                    { date: "Jan 5, 2026", description: "Call - Partnership health check" },
+                    { date: "Dec 10, 2025", description: "Email: Feedback on H2 performance" },
+                    { date: "Nov 20, 2025", description: "Strategy session" }
+                ]
+            },
+            {
+                id: "102814449353",
+                name: "Harmonise Solutions",
+                industry: "Compliance Software",
+                website: "www.harmonisesolutions.com",
+                employees: "75+",
+                revenue: "£9M",
+                lastTouchpoint: { date: "Dec 28, 2025", type: "Email" },
+                nextCall: { date: "None scheduled", time: "" },
+                primaryContact: { name: "Hassan Abdalla", role: "", email: "hassan.a@harmonise-solutions.co.uk", phone: "" },
+                jointAccounts: [],
+                urgentActions: ["Renewal discussion required", "Feature request prioritization", "Training needs assessment"],
+                engagementTimeline: [
+                    { date: "Dec 28, 2025", description: "Email: New Year partnership outlook" },
+                    { date: "Dec 15, 2025", description: "Call - Holiday season check-in" },
+                    { date: "Nov 30, 2025", description: "Q4 business review" }
+                ]
+            }
+        ];
+
+        // Filter state
+        let activeFilter = null;
+        let activeSortButton = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(null, null);
+            setDefaultDate();
+        });
+
+        function setDefaultDate() {
+            const today = new Date();
+            document.getElementById('engagementDate').valueAsDate = today;
+        }
+
+        function renderTable(filterType = null, sortType = null) {
+            let filtered = partnersData;
+
+            // Apply filter
+            if (filterType === 'all' || filterType === null) {
+                filtered = partnersData;
+            } else if (filterType === 'spoken') {
+                const spokenIds = ["307737155264", "225565439727", "298696468179", "150471435973", "300402876140", "300467318471"];
+                filtered = partnersData.filter(p => spokenIds.includes(p.id));
+            } else if (filterType === 'not-contacted') {
+                const notContactedIds = ["265571094211", "228984998604", "208428377791", "187355335408", "160240379634", "155732707044", "102814449353"];
+                filtered = partnersData.filter(p => notContactedIds.includes(p.id));
+            } else if (filterType === 'upcoming-calls') {
+                const upcomingIds = ["300402876140", "298696468179", "307737155264", "150471435973", "225565439727"];
+                filtered = partnersData.filter(p => upcomingIds.includes(p.id));
+            } else if (filterType === 'urgent') {
+                const urgentIds = ["208428377791", "187355335408", "160240379634", "155732707044", "102814449353"];
+                filtered = partnersData.filter(p => urgentIds.includes(p.id));
+            }
+
+            // Apply sort
+            if (sortType === 'next-call') {
+                filtered = filtered.filter(p => p.nextCall.date !== "None scheduled");
+                filtered.sort((a, b) => new Date(a.nextCall.date) - new Date(b.nextCall.date));
+            } else if (sortType === 'urgent-actions') {
+                filtered = filtered.filter(p => p.urgentActions.length > 0);
+                filtered.sort((a, b) => b.urgentActions.length - a.urgentActions.length);
+            } else if (sortType === 'last-touch') {
+                filtered.sort((a, b) => new Date(b.lastTouchpoint.date) - new Date(a.lastTouchpoint.date));
+            }
+
+            // Apply search filter if exists
+            const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.primaryContact.name.toLowerCase().includes(searchTerm) ||
+                    p.urgentActions.some(action => action.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // Render rows
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No partners match the current filter.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(partner => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><a href="#" class="partner-name" onclick="openModal('${partner.id}')">${partner.name}</a></td>
+                    <td>
+                        <div class="contact-info">
+                            <span class="contact-name">${partner.primaryContact.name}</span>
+                            <span class="contact-role">${partner.primaryContact.role}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="last-touchpoint">
+                            <span class="touchpoint-date">${partner.lastTouchpoint.date}</span>
+                            <span class="touchpoint-type">${partner.lastTouchpoint.type}</span>
+                        </div>
+                    </td>
+                    <td class="upcoming-call">
+                        ${partner.nextCall.date === "None scheduled" 
+                            ? '<span class="no-call">None scheduled</span>'
+                            : (partner.nextCall.date === "Mar 5, 2026"
+                                ? `<span class="call-badge today">Today @ ${partner.nextCall.time}</span>`
+                                : `<span class="call-badge">${partner.nextCall.date} @ ${partner.nextCall.time}</span>`)
+                        }
+                    </td>
+                    <td>
+                        <div class="joint-accounts">
+                            ${partner.jointAccounts.length > 0 
+                                ? partner.jointAccounts.map(account => `<span class="joint-tag">${account}</span>`).join('') 
+                                : '<span class="joint-tag" style="opacity: 0.5;">None</span>'}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="urgent-actions">
+                            ${partner.urgentActions.length > 0 
+                                ? partner.urgentActions.map(action => {
+                                    let badgeClass = 'red';
+                                    if (action.includes('alignment')) badgeClass = 'amber';
+                                    if (action.includes('review')) badgeClass = 'orange';
+                                    return `<span class="badge ${badgeClass}">${action}</span>`;
+                                }).join('') 
+                                : '<span style="color: #6B7280; font-size: 12px;">None</span>'}
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn-small" onclick="openModal('${partner.id}')">View Details</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filterByKPI(filterName, element) {
+            // Clear active KPI cards
+            document.querySelectorAll('.kpi-card').forEach(card => card.classList.remove('active'));
+            
+            // If clicking the same filter, deactivate
+            if (activeFilter === filterName) {
+                activeFilter = null;
+                clearFilterIndicator();
+                renderTable(null, null);
+                clearActiveSortButton();
+            } else {
+                // Activate new filter
+                activeFilter = filterName;
+                element.classList.add('active');
+                
+                const filterNames = {
+                    'all': 'All Partners',
+                    'spoken': 'Partners Spoken This Week',
+                    'not-contacted': 'Partners Not Contacted This Week',
+                    'upcoming-calls': 'Upcoming Calls in Next 14 Days',
+                    'urgent': 'Urgent Action Items'
+                };
+                
+                const filterCounts = {
+                    'all': 13,
+                    'spoken': 6,
+                    'not-contacted': 7,
+                    'upcoming-calls': 5,
+                    'urgent': 5
+                };
+                
+                showFilterIndicator(filterNames[filterName], filterCounts[filterName]);
+                renderTable(filterName, null);
+                clearActiveSortButton();
+            }
+        }
+
+        function sortAndFilter(sortType) {
+            // Clear KPI card active states
+            document.querySelectorAll('.kpi-card').forEach(card => card.classList.remove('active'));
+            activeFilter = null;
+            
+            // Update sort button states
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            
+            if (sortType === 'all') {
+                clearFilterIndicator();
+                renderTable(null, null);
+                activeSortButton = null;
+            } else {
+                const button = event.target;
+                button.classList.add('active');
+                activeSortButton = sortType;
+                
+                if (sortType === 'next-call') {
+                    showFilterIndicator('Next Call Scheduled', 1);
+                    renderTable(null, 'next-call');
+                } else if (sortType === 'urgent-actions') {
+                    showFilterIndicator('Partners with Urgent Actions', 5);
+                    renderTable(null, 'urgent-actions');
+                } else if (sortType === 'last-touch') {
+                    clearFilterIndicator();
+                    renderTable(null, 'last-touch');
+                }
+            }
+        }
+
+        function clearActiveSortButton() {
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.sort-btn').classList.add('active');
+            activeSortButton = null;
+        }
+
+        function showFilterIndicator(filterName, count) {
+            const indicator = document.getElementById('filterIndicator');
+            const text = document.getElementById('filterIndicatorText');
+            text.textContent = `Showing: ${filterName} (${count} partner${count !== 1 ? 's' : ''})`;
+            indicator.classList.add('active');
+        }
+
+        function clearFilterIndicator() {
+            const indicator = document.getElementById('filterIndicator');
+            indicator.classList.remove('active');
+        }
+
+        function clearFilter() {
+            activeFilter = null;
+            document.querySelectorAll('.kpi-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.sort-btn').classList.add('active');
+            clearFilterIndicator();
+            renderTable(null, null);
+        }
+
+        function filterTable() {
+            renderTable(activeFilter, activeSortButton);
+        }
+
+        function openModal(partnerId) {
+            const partner = partnersData.find(p => p.id === partnerId);
+            if (!partner) return;
+
+            document.getElementById('modalPartnerName').textContent = partner.name;
+            document.getElementById('modalPartnerMeta').textContent = `${partner.industry} • ${partner.employees} employees`;
+
+            document.getElementById('modalContactInfo').innerHTML = `
+                <div class="modal-item">
+                    <div class="modal-item-header">${partner.primaryContact.name}</div>
+                    <div class="modal-item-description">${partner.primaryContact.role}</div>
+                    <div class="modal-item-description">${partner.primaryContact.email}</div>
+                    <div class="modal-item-description">${partner.primaryContact.phone}</div>
+                </div>
+            `;
+
+            document.getElementById('modalAccountDetails').innerHTML = `
+                <div class="modal-item">
+                    <div class="modal-item-header">Website</div>
+                    <div class="modal-item-description">${partner.website}</div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-header">Employees</div>
+                    <div class="modal-item-description">${partner.employees}</div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-header">Revenue</div>
+                    <div class="modal-item-description">${partner.revenue}</div>
+                </div>
+            `;
+
+            document.getElementById('modalEngagementStatus').innerHTML = `
+                <div class="modal-item">
+                    <div class="modal-item-header">Last Touchpoint</div>
+                    <div class="modal-item-description">${partner.lastTouchpoint.date} via ${partner.lastTouchpoint.type}</div>
+                </div>
+                <div class="modal-item">
+                    <div class="modal-item-header">Next Call</div>
+                    <div class="modal-item-description">${partner.nextCall.date} at ${partner.nextCall.time || ''}</div>
+                </div>
+                ${partner.jointAccounts.length > 0 ? `
+                <div class="modal-item">
+                    <div class="modal-item-header">Joint Accounts</div>
+                    <div class="modal-item-description">${partner.jointAccounts.join(', ')}</div>
+                </div>
+                ` : ''}
+                ${partner.urgentActions.length > 0 ? `
+                <div class="modal-item">
+                    <div class="modal-item-header">Urgent Actions</div>
+                    <div class="modal-item-description">${partner.urgentActions.join(', ')}</div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('modalTimeline').innerHTML = partner.engagementTimeline.map(event => `
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">${event.date}</div>
+                        <div class="timeline-description">${event.description}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('partnerModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveEngagement(dateInput) {
+            alert('Engagement logged successfully! This would be saved to your database.');
+            closeModal('partnerModal');
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('partnerModal');
+            if (event.target === modal) {
+                closeModal('partnerModal');
+            }
+        };
+    </script>
+</body>
+</html>
